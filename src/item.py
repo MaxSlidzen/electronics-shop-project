@@ -11,7 +11,7 @@ class Item:
 
     def __init__(self, name: str, price: float, quantity: int) -> None:
         """
-        Создание экземпляра класса item.
+        Создание экземпляра класса Item.
 
         :param name: Название товара.
         :param price: Цена за единицу товара.
@@ -23,13 +23,13 @@ class Item:
         Item.all.append(self)
 
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Вывод информации об объекте для разработчика (в режиме отладки)
 
         :return: Класс объекта с текущими атрибтами
         """
-        return f"Item('{self.__name}', {self.price}, {self.quantity})"
+        return f"{self.__class__.__name__}('{self.__name}', {self.price}, {self.quantity})"
 
 
     def __str__(self):
@@ -41,21 +41,46 @@ class Item:
         return self.name
 
 
+    def __add__(self, other: object) -> int:
+        """
+        Сложение товара в магазине (строго по классу)
+
+         :return: Количество товаров
+        """
+        if isinstance(other, self.__class__) or issubclass(self.__class__, other.__class__):
+            return self.quantity + other.quantity
+        raise Exception('Складывать можно только товары и телефоны')
+
+    # Вариант для сложения строго в определенном классе
+    # def __add__(self, other) -> int:
+    #     """
+    #     Сложение товара в магазине (строго по классу)
+    #
+    #      :return: Количество товаров
+    #     """
+    #     if self.__class__ == other.__class__:
+    #         return self.quantity + other.quantity
+    #     raise Exception('Складывать можно только экземпляры одного класса')
+
+
     @classmethod
-    def instantiate_from_csv(cls, path='../src/items.csv'):
+    def instantiate_from_csv(cls, path='../src/items.csv') -> None:
+        """
+        Инициализация экземпляров класса Item из файла src/items.csv
+        """
         # В аргументы добавлен путь по умолчанию. В тестах вылетает ошибка, если не менять путь
         Item.all = []
         with open(path) as file:
             reader = csv.DictReader(file)
             for row in reader:
                 name = row['name']
-                price = row['price']
-                quantity = row['quantity']
+                price = int(row['price'])
+                quantity = int(row['quantity'])
                 cls(name, price, quantity)
 
 
     @staticmethod
-    def string_to_number(string):
+    def string_to_number(string: str) -> int:
         """
         Возвращает число из числа-строки
 
@@ -65,7 +90,7 @@ class Item:
 
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         Возвращает наименование товара.
         """
@@ -73,7 +98,7 @@ class Item:
 
 
     @name.setter
-    def name(self, name):
+    def name(self, name: str) -> None:
         """
         Проверка на длину наименования товара при инициализации
         """
