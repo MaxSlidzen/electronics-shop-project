@@ -1,4 +1,5 @@
 import csv
+
 from src.my_exceptions import InstantiateCSVError
 
 
@@ -70,14 +71,11 @@ class Item:
         Инициализация экземпляров класса Item из файла src/items.csv
         """
         # В аргументы добавлен путь по умолчанию. В тестах вылетает ошибка, если не менять путь
-        try:
-            Item.all = []
 
+        Item.all = []
+        try:
             with open(path) as file:
                 reader = csv.DictReader(file)
-
-                # if FileNotFoundError:
-                #     raise FileNotFoundError('Отсутствует файл item.csv')
 
                 if reader.fieldnames != ['name', 'price', 'quantity']\
                         or len(reader.fieldnames) != 3:
@@ -91,10 +89,7 @@ class Item:
                     quantity = int(row['quantity'])
                     cls(name, price, quantity)
         except FileNotFoundError:
-            print('Отсутствует файл item.csv')
-        except InstantiateCSVError:
-            print('Файл item.csv поврежден')
-
+            raise FileNotFoundError("Отсутствует файл item.csv")
 
     @staticmethod
     def string_to_number(string: str) -> int:
