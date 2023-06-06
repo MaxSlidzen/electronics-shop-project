@@ -3,6 +3,7 @@ from src.item import Item
 # from src.phone import Phone
 import pytest
 import os
+from src.my_exceptions import InstantiateCSVError
 
 
 @pytest.fixture
@@ -63,6 +64,25 @@ def test_instantiate_from_csv():
         path = '../src/items.csv'
     Item.instantiate_from_csv(path)
     assert len(Item.all) == 5
+
+
+def test_not_found_csv():
+    with pytest.raises(FileNotFoundError):
+        Item.instantiate_from_csv('unknown/path.csv')
+
+
+def test_broken_csv():
+    if os.path.exists('tests/broken_items.csv') and os.path.exists('tests/broken_items2.csv'):
+        path_1 = 'tests/broken_items.csv'
+        path_2 = 'tests/broken_items2.csv'
+    else:
+        path_1 = 'broken_items.csv'
+        path_2 = 'broken_items2.csv'
+    with pytest.raises(InstantiateCSVError):
+        Item.instantiate_from_csv(path_1)
+    with pytest.raises(InstantiateCSVError):
+        Item.instantiate_from_csv(path_2)
+
 
 
 def test_string_to_number():

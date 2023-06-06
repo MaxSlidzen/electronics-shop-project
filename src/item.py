@@ -1,5 +1,7 @@
 import csv
 
+from src.my_exceptions import InstantiateCSVError
+
 
 class Item:
     """
@@ -36,7 +38,7 @@ class Item:
         """
         Вывод информации об объекте для пользователя
 
-         :return: Наименование товара
+        :return: Наименование товара
         """
         return self.name
 
@@ -45,7 +47,7 @@ class Item:
         """
         Сложение товара в магазине (строго по классу)
 
-         :return: Количество товаров
+        :return: Количество товаров
         """
         if isinstance(other, self.__class__) or issubclass(self.__class__, other.__class__):
             return self.quantity + other.quantity
@@ -69,15 +71,25 @@ class Item:
         Инициализация экземпляров класса Item из файла src/items.csv
         """
         # В аргументы добавлен путь по умолчанию. В тестах вылетает ошибка, если не менять путь
-        Item.all = []
-        with open(path) as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                name = row['name']
-                price = int(row['price'])
-                quantity = int(row['quantity'])
-                cls(name, price, quantity)
 
+        Item.all = []
+        try:
+            with open(path) as file:
+                reader = csv.DictReader(file)
+
+                if reader.fieldnames != ['name', 'price', 'quantity']\
+                        or len(reader.fieldnames) != 3:
+                    raise InstantiateCSVError
+
+                for row in reader:
+                    if row['name'] is None or row['price'] is None or row['quantity'] is None:
+                        raise InstantiateCSVError
+                    name = row['name']
+                    price = int(row['price'])
+                    quantity = int(row['quantity'])
+                    cls(name, price, quantity)
+        except FileNotFoundError:
+            raise FileNotFoundError("Отсутствует файл item.csv")
 
     @staticmethod
     def string_to_number(string: str) -> int:
